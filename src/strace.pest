@@ -1,0 +1,103 @@
+// Meta
+
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+COMMENT = _{ "/*" ~ (comment_inner)? ~ "*/" }
+comment_inner = @{ (!"*/" ~ ANY)* }
+
+// As value primitives
+
+null = { "NULL" }
+
+// Numbers
+
+number_hex = _{ "0x" ~ ASCII_HEX_DIGIT+ }
+number_oct = _{ "0" ~ ASCII_OCT_DIGIT+ }
+number = @{
+  number_hex | number_oct | "-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*) ~ ("." ~ ASCII_DIGIT*)?
+}
+
+// Identifiers and expressions
+
+constant = @{ (ASCII_ALPHA_UPPER)+ }
+ident = @{ !("NULL") ~ (ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")*) }
+op = @{ "|" | "&" | "or" }
+expr = { (call | ident | number) ~ (op ~ (call | ident | number))* }
+
+// Strings
+
+char = {
+      !("\"" | "\\") ~ ANY
+    | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t" | "x")
+    | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
+}
+
+string_inner = @{ char* }
+string = ${ "\"" ~ string_inner ~ "\"" ~ ("...")? }
+
+// Lists
+
+list = { "{" ~ (value)* ~ "..."? ~ "}" }
+
+// Arrays
+
+array = {
+    "[" ~ "]"
+  | "[" ~ value ~ ("," ~ value)* ~ "]"
+}
+
+// Bit sets
+
+bit_set = {
+    "~[" ~ "]"
+  | "~"? ~ "[" ~ constant ~ (constant)* ~ "]"
+}
+
+// Maps
+
+key_value = { ident ~ "=" ~ ("..." | value) }
+hash = {
+    "{" ~ ("...")? ~ "}"
+  | "{" ~ key_value ~ ("," ~ key_value)* ~ ("...")? ~ "}"
+  | "{" ~ key_value ~ ("," ~ key_value)* ~ "," ~ ("...")? ~ "}"
+}
+
+// Calls
+
+call_info = { (ANY)+ }
+call_result = { "=" ~ number ~ call_info? }
+call = {
+    ident ~ "(" ~ ")" ~ call_result?
+  | ident ~ "(" ~ value ~ ("," ~ value)* ~ ")" ~ call_result?
+  | ident ~ "(" ~ value ~ ("," ~ value)* ~ "," ~ ")" ~ call_result?
+}
+
+// Prefixes
+
+pid = { "[pid" ~ number ~ "]" }
+
+timestamp = { number }
+
+// Recursive values
+
+value = _{ expr | call | hash | bit_set | array | list | string | ident | number | null }
+
+// Root level
+
+exit = { "+++ exited with" ~ number ~ "+++" }
+kill = { "+++ killed by" ~ constant ~ "+++" }
+signal = { "---" ~ constant ~ hash? ~ "..."? ~ "---" }
+permission_denied = { (!":" ~ ANY)+ ~ ":" ~ "attach:" ~ "ptrace(PTRACE_SEIZE," ~ number ~ "):" ~ "Operation not permitted" }
+process_attach = { (!":" ~ ANY)+ ~ ":" ~ "Process" ~ number ~ "attached" }
+process_detach = { "strace:" ~ "Process" ~ number ~ "detached" }
+trace = _{ (pid)? ~ (timestamp)? ~ (call | exit | kill) }
+line = {
+    trace
+  | signal
+  | permission_denied
+  | process_attach
+  | process_detach
+}
+
+// Entry point
+
+strace = _{ SOI ~ line ~ EOI }
