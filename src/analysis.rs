@@ -115,7 +115,7 @@ impl FnInfo {
     pub fn did_succeed(&self, code: i32) -> Option<bool> {
         match self.err_code {
             ErrorReturnCode::Single(n) => Some(code != n),
-            ErrorReturnCode::Unknown => None
+            ErrorReturnCode::Unknown => None,
         }
     }
 }
