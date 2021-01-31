@@ -16,11 +16,11 @@
 //!
 //! See all executable files:
 //! ```bash
-//! ftrace -t f -t x -- ls
+//! ftrace --type f --type x -- ls
 //! ```
 //!
 //! See _all paths that the program **tried to access**_ (even ones that didn't exist). This is
-//! sometims useful to understand a search algorithm that a program uses to find linked libraries,
+//! sometimes useful to understand a search algorithm that a program uses to find linked libraries,
 //! etc.
 //! ```bash
 //! ftrace --non-existent -- ls
