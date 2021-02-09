@@ -128,6 +128,13 @@ fn main() -> Result<()> {
     let app_args = cli::Args::parse();
     log::trace!("{:?}", app_args);
 
+    // BUG: there's a bug with clap right now which means we have to manually check for this case
+    if app_args.pid.is_none() && app_args.cmd.is_empty() {
+        use clap::IntoApp;
+        cli::Args::into_app().print_help().unwrap();
+        exit_with_error!("No command or pid given!");
+    }
+
     let mut child = Command::new(strace_path)
         // follow and trace the process's forks
         .arg("--follow-forks")
