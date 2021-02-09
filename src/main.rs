@@ -85,7 +85,7 @@ use flexi_logger::{opt_format, Logger};
 use termcolor::{Color, ColorChoice, WriteColor};
 use which::which;
 
-use parse::{decode_hex, StraceToken};
+use parse::{string::decode_hex, StraceLine, StraceToken};
 
 // TODO: support strace's file descriptor decoding? (--decode-fds=all|-yy)
 
@@ -163,7 +163,7 @@ fn main() -> Result<()> {
     for line in reader.lines() {
         let line = line?;
         log::trace!("RAW LINE: {}", line);
-        match parse::strace_line(&line) {
+        match StraceLine::from_str(&line) {
             Ok(strace) => {
                 log::debug!("PARSED LINE: {}", strace);
                 if let StraceToken::PermissionDenied(pid) = strace.inner {
