@@ -36,7 +36,7 @@ _run LOG *ARGS:
     rm -rf /tmp/.ftrace
     # build and run
     cargo build
-    (RUST_LOG={{LOG}} ./target/debug/ftrace {{ARGS}}) || true
+    (RUST_LOG={{LOG}} ./target/debug/ftrace {{ARGS}}) || (echo "[ftrace exited with]: $?" && true)
     # display log file for run
     bat /tmp/.ftrace/*
 
