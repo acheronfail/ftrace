@@ -118,7 +118,7 @@ fn main() -> Result<()> {
             p!(false, None, "Logs available at: {}", log_dir.display());
             process::exit(1);
         }};
-    };
+    }
 
     let strace_path = match which("strace") {
         Ok(path) => path,

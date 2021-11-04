@@ -1,6 +1,6 @@
-use clap::AppSettings::ColoredHelp;
 use clap::ArgSettings::{AllowHyphenValues, Last};
-use clap::{crate_authors, crate_description, crate_name, crate_version, Clap};
+use clap::{crate_authors, crate_description, crate_name, crate_version};
+use clap::Parser;
 
 #[derive(Debug, Default)]
 pub struct FileTypes {
@@ -38,13 +38,12 @@ const AFTER_HELP: &str = concat!(
     " --help` gives all details."
 );
 
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 #[clap(
     version = crate_version!(),
     about = crate_description!(),
     author = crate_authors!(),
     after_help = AFTER_HELP,
-    global_setting(ColoredHelp)
 )]
 pub struct Args {
     /// Command to trace
@@ -83,7 +82,7 @@ pub struct Args {
     ///     'e' or 'empty':        empty files or directories
     ///     's' or 'socket':       socket
     ///     'p' or 'pipe':         named pipe (FIFO)
-    #[clap(short = 't', long = "type", verbatim_doc_comment, hide_possible_values = true, multiple = true, possible_values = POSSIBLE_TYPES)]
+    #[clap(short = 't', long = "type", verbatim_doc_comment, hide_possible_values = true, multiple_occurrences = true, possible_values = POSSIBLE_TYPES)]
     file_types: Vec<String>,
     #[clap(skip)]
     _file_types: Option<FileTypes>,
@@ -92,7 +91,7 @@ pub struct Args {
 
 impl Args {
     pub fn parse() -> Args {
-        let mut args = <Args as Clap>::parse();
+        let mut args = <Args as Parser>::parse();
         args._file_types = Args::parse_file_types(&args.file_types);
 
         args
