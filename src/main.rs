@@ -249,6 +249,10 @@ fn main() -> Result<()> {
                                 }
                             }
 
+                            if s.is_empty() {
+                                continue;
+                            }
+
                             // Skip duplicates if set
                             if app_args.no_duplicates {
                                 if seen_values.lock().unwrap().contains(&s) {
