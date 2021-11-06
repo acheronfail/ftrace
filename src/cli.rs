@@ -72,6 +72,12 @@ pub struct Args {
     /// This will commonly output heaps of directories as many programs attempt to search for linked libraries, etc.
     #[clap(short = 'e', long = "non-existent")]
     pub non_existent: bool,
+    /// Only print each path the first time it's seen (i.e., no duplicates)
+    ///
+    /// When this is set, if the same path is accessed by the program twice, then it will only be
+    /// printed the first time that it's accessed.
+    #[clap(short = 'u', long = "no-duplicates")]
+    pub no_duplicates: bool,
     /// Filter the search by type (multiple allowable filetypes can be specified)
     ///
     /// Possible types are:

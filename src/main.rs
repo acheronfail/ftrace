@@ -74,9 +74,11 @@ mod fs;
 mod macros;
 mod parse;
 
+use std::collections::HashSet;
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::sync::{Arc, Mutex};
 use std::{env, process};
 
 use anyhow::Result;
@@ -167,6 +169,7 @@ fn main() -> Result<()> {
         .spawn()?;
 
     let reader = BufReader::new(child.stderr.as_mut().unwrap());
+    let seen_values = Arc::new(Mutex::new(HashSet::new()));
     for line in reader.lines() {
         let line = line?;
         log::trace!("RAW LINE: {}", line);
@@ -186,6 +189,7 @@ fn main() -> Result<()> {
 
                 let app_args = &app_args;
                 let file_types = app_args.file_types();
+                let seen_values = &seen_values;
                 strace.walk(&move |token| {
                     if let StraceToken::Call {
                         name, result, args, ..
@@ -245,7 +249,16 @@ fn main() -> Result<()> {
                                 }
                             }
 
-                            p!(app_args.color, color, "{}", s);
+                            // Skip duplicates if set
+                            if app_args.no_duplicates {
+                                if seen_values.lock().unwrap().contains(&s) {
+                                    continue;
+                                }
+
+                                seen_values.lock().unwrap().insert(s.clone());
+                            }
+
+                            p!(app_args.color, color, "{:?}", s);
                         }
 
                         false
