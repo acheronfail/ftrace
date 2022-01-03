@@ -14,7 +14,7 @@ version = "0.2.0"
 
 [dependencies]
 anyhow = "1.0.38"
-clap = "3.0.0-beta.2"
+clap = { version = "3.0.0", features = ["cargo", "derive"] }
 easy_collections = "0.3.2"
 flexi_logger = "0.17.1"
 hex = "0.4.2"
