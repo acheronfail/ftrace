@@ -13,14 +13,7 @@ version = "0.2.1"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.38"
-clap = { version = "3.0.0", features = ["cargo", "derive"] }
-easy_collections = "0.3.2"
-flexi_logger = "0.17.1"
-hex = "0.4.2"
-lazy_static = "1.4.0"
-log = "0.4.14"
-pest = "2.1.3"
-pest_derive = "2.1.0"
-termcolor = "1.1.2"
-which = "4.0.2"
+anyhow = "1.0.69"
+nix = "0.26.2"
+owo-colors = "3.5.0"
+serde_json = "1.0.94"

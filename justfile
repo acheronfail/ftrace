@@ -29,19 +29,18 @@ bump +TYPE:
     git commit -v -m "$version"
     git tag "$version"
 
-_run LOG *ARGS:
-    echo {{LOG}}
-    echo {{ARGS}}
-    # remove log files
-    rm -rf /tmp/.ftrace
-    # build and run
-    cargo build
-    (RUST_LOG={{LOG}} ./target/debug/ftrace {{ARGS}}) || (echo "[ftrace exited with]: $?" && true)
-    # display log file for run
-    bat /tmp/.ftrace/*
-
-debug *ARGS:
-    cargo watch -s 'just _run debug {{ARGS}}'
-
-trace *ARGS:
-    cargo watch -s 'just _run trace {{ARGS}}'
+gen-syscall:
+    ( \
+        echo -n '{'; \
+        gcc -M /usr/include/asm/unistd.h | \
+        tr -d '\\\n' | \
+        cut -d' ' -f2- | \
+        xargs cat | \
+        cpp -E -fpreprocessed -dM \
+        | awk '/__NR_/ {print $3 " " $2}' | \
+        sort -h | \
+        awk 'NR > 1 {printf "," } {printf "\"%s\": \"%s\"\n", $1, substr($2, 6)}'; \
+        echo '}'\
+    ) \
+    | jq \
+    > src/syscall.json 2>&1

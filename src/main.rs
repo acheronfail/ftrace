@@ -68,241 +68,63 @@
 //! [`strace`]: https://strace.io/
 //! [tracefile]: https://gitlab.com/ole.tange/tangetools/tree/master/tracefile
 
-mod analysis;
-mod cli;
-mod fs;
-mod macros;
-mod parse;
+use std::{collections::HashMap, os::unix::process::CommandExt, process::Command};
 
-use std::collections::HashSet;
-use std::io::{BufRead, BufReader, Write};
-use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
-use std::sync::{Arc, Mutex};
-use std::{env, process};
+use nix::{
+    sys::{ptrace, wait::waitpid},
+    unistd::Pid,
+};
+use owo_colors::OwoColorize;
 
-use anyhow::Result;
-use clap::crate_name;
-use flexi_logger::{opt_format, Logger};
-use termcolor::{Color, ColorChoice, WriteColor};
-use which::which;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let syscall_table: HashMap<u64, String> = serde_json::from_str(include_str!("syscall.json"))?;
+    let longest_syscall_name = syscall_table
+        .iter()
+        .map(|(_, value)| value.len())
+        .max_by(|a, b| usize::cmp(a, b))
+        .unwrap();
 
-use parse::{string::decode_hex, StraceLine, StraceToken};
+    // TODO: argument parsing
 
-// TODO: support strace's file descriptor decoding? (--decode-fds=all|-yy)
+    let mut cmd = Command::new("cat");
+    cmd.arg("/etc/hosts");
 
-fn init_logging() -> Result<PathBuf> {
-    let log_dir = env::temp_dir().join(format!(".{}", crate_name!()));
-    Logger::with_env()
-        .log_to_file()
-        .directory(&log_dir)
-        .format(opt_format)
-        .start()?;
-
-    log::trace!("--- LOGGER INITIALISED ---");
-
-    Ok(log_dir)
-}
-
-fn main() -> Result<()> {
-    let log_dir = match init_logging() {
-        Ok(dir) => dir,
-        Err(e) => {
-            eprintln!("Failed to initialise logger: {}", e);
-            process::exit(1);
-        }
-    };
-
-    macro_rules! exit_with_error {
-        ($( $eprintln_arg:expr ),*) => {{
-            log::error!($( $eprintln_arg ),*);
-            p!(false, None, $( $eprintln_arg ),*);
-            p!(false, None, "Logs available at: {}", log_dir.display());
-            process::exit(1);
-        }};
+    unsafe {
+        cmd.pre_exec(|| {
+            use nix::sys::ptrace::traceme;
+            traceme().map_err(|e| e.into())
+        });
     }
 
-    let strace_path = match which("strace") {
-        Ok(path) => path,
-        Err(e) => exit_with_error!("Failed to find `strace` binary: {}", e),
-    };
+    let child = cmd.spawn()?;
+    let child_pid = Pid::from_raw(child.id() as _);
 
-    let app_args = cli::Args::parse();
-    log::trace!("{:?}", app_args);
+    let res = waitpid(child_pid, None)?;
+    eprintln!("waitpid: {:?}", res.yellow());
 
-    // BUG: there's a bug with clap right now which means we have to manually check for this case
-    if app_args.pid.is_none() && app_args.cmd.is_empty() {
-        use clap::IntoApp;
-        cli::Args::into_app().print_help().unwrap();
-        exit_with_error!("No command or pid given!");
-    }
+    let mut is_sys_exit = false;
+    loop {
+        ptrace::syscall(child_pid, None)?;
+        _ = waitpid(child_pid, None)?;
+        if is_sys_exit {
+            let regs = match ptrace::getregs(child_pid) {
+                Ok(regs) => regs,
+                Err(_) => break,
+            };
 
-    let mut child = Command::new(strace_path)
-        // follow and trace the process's forks
-        .arg("--follow-forks")
-        // monitor all statuses: even though this is almost the same as the default behaviour, by specifying this
-        // `strace` will wait for each syscall to end before printing it. This means that we don't have to parse and
-        // deal with `<unfinished... >` and `<... resume XXX>` logs
-        .arg("--status=successful,failed,unfinished,unavailable,detached")
-        // include timestamps with microsecond precision
-        .arg("-ttt")
-        // print all strings with hexadecimal escapes
-        .arg("--strings-in-hex")
-        // only trace file syscalls since that's what we're interested in
-        .arg("--trace=%file")
-        // as from `man strace`: Use this option to get all of the gory details
-        .arg("--no-abbrev")
-        // the user-provided command
-        .args(&app_args.cmd)
-        // the user-provided pid
-        .args(
-            &app_args
-                .pid
-                .map(|pid| vec![format!("--attach={}", pid)])
-                .unwrap_or(vec![]),
-        )
-        // `strace` logs via stderr
-        // NOTE: if the spawned/attached process also logs via stderr then we'll see that data too
-        .stderr(Stdio::piped())
-        // ignore the command's stderr
-        .stdout(Stdio::null())
-        .spawn()?;
+            // TODO: argument parsing of syscall functions that take files
 
-    let reader = BufReader::new(child.stderr.as_mut().unwrap());
-    let seen_values = Arc::new(Mutex::new(HashSet::new()));
-    for line in reader.lines() {
-        let line = line?;
-        log::trace!("RAW LINE: {}", line);
-        match StraceLine::from_str(&line) {
-            Ok(strace) => {
-                log::debug!("PARSED LINE: {}", strace);
-                if let StraceToken::PermissionDenied(pid) = strace.inner {
-                    p!(
-                        app_args.color,
-                        Color::Yellow,
-                        "{}\n{}",
-                        format!("Could not attach to pid: {}, permission denied.", pid),
-                        "Try re-running the command with elevated permissons."
-                    );
-                    break;
-                }
-
-                let app_args = &app_args;
-                let file_types = app_args.file_types();
-                let seen_values = &seen_values;
-                strace.walk(&move |token| {
-                    if let StraceToken::Call {
-                        name, result, args, ..
-                    } = token
-                    {
-                        // call expressions without results are inline call expressions, so skip them
-                        let result = match result {
-                            Some(result) => result,
-                            None => return true,
-                        };
-
-                        let fn_info = &analysis::FN_MAP[name];
-                        let color = match fn_info.did_succeed(*result) {
-                            Some(true) => Color::Green,
-                            Some(false) => {
-                                if app_args.non_existent {
-                                    Color::Yellow
-                                } else {
-                                    return true;
-                                }
-                            }
-                            None => Color::White,
-                        };
-
-                        // NOTE: handle special case for `execve`: the first argument is the binary being executed, and
-                        // the second argument is the binary's `argv` (which does not contain paths for file accesses)
-                        let maybe_paths = if *name == "execve" {
-                            if let StraceToken::String(s) = &args[0] {
-                                vec![*s]
-                            } else {
-                                vec![]
-                            }
-                        } else {
-                            token.strs()
-                        };
-
-                        for s in maybe_paths {
-                            let s = decode_hex(s);
-                            if let Some(file_types) = file_types {
-                                let path = Path::new(&s);
-                                match path.metadata() {
-                                    Ok(meta) => {
-                                        let ft = meta.file_type();
-                                        if (file_types.files && !fs::is_file(&path))
-                                            || (file_types.directories && !fs::is_dir(&path))
-                                            || (file_types.symlinks && !fs::is_symlink(&path))
-                                            || (file_types.sockets && !fs::is_socket(&ft))
-                                            || (file_types.pipes && !fs::is_pipe(&ft))
-                                            || (file_types.executables && !fs::is_executable(&meta))
-                                            || (file_types.empty && !fs::is_empty(&path))
-                                        {
-                                            continue;
-                                        }
-                                    }
-                                    // NOTE: skip here because the string was probably not a valid path?
-                                    Err(_) => continue,
-                                }
-                            }
-
-                            if s.is_empty() {
-                                continue;
-                            }
-
-                            // Skip duplicates if set
-                            if app_args.no_duplicates {
-                                if seen_values.lock().unwrap().contains(&s) {
-                                    continue;
-                                }
-
-                                seen_values.lock().unwrap().insert(s.clone());
-                            }
-
-                            p!(app_args.color, color, "{:?}", s);
-                        }
-
-                        false
-                    } else {
-                        true
-                    }
-                });
-            }
-            #[allow(unused)]
-            Err(e) => {
-                log::warn!("INVALID LINE: {}", line);
-                if app_args.invalid_lines {
-                    #[cfg(not(debug_assertions))]
-                    p!(app_args.color, Color::Red, "PARSE_ERR: {}", line);
-                    #[cfg(debug_assertions)]
-                    p!(app_args.color, Color::Red, "{}", e);
-                }
-            }
-        }
-    }
-
-    p!(app_args.color, None);
-
-    match child.wait() {
-        Ok(exit_status) => {
-            let msg = format!(
-                "strace exited with code: {}",
-                exit_status
-                    .code()
-                    .map(|c| c.to_string())
-                    .unwrap_or("???".to_string())
+            eprintln!(
+                "{:>width$}({:x}, {:x}, {:x}, ...) = {:x}",
+                syscall_table[&regs.orig_rax].bright_green(),
+                regs.rdi.cyan(),
+                regs.rsi.cyan(),
+                regs.rdx.cyan(),
+                regs.rax.yellow(),
+                width = longest_syscall_name
             );
-
-            if !exit_status.success() {
-                exit_with_error!("{}", msg);
-            } else {
-                log::trace!("{}", msg);
-            }
         }
-        Err(e) => exit_with_error!("An error occurred while waiting for process to end: {}", e),
+        is_sys_exit = !is_sys_exit;
     }
 
     Ok(())
