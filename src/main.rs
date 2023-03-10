@@ -1,87 +1,57 @@
-//! _Like `strace`, but lists files the program accesses. Inspired by [tracefile]._
-//!
-//! This tool's primary purpose is to assist in discovering which files/directories a program
-//! accesses during its lifetime. It works by making use of [`strace`] and parsing its output to
-//! find out which files and folders were accessed.
-//!
-//! It supports various options, such as filtering based on file type (file, directory, symlink,
-//! pipe, socket, executable, etc).
-//!
-//! ## Usage
-//!
-//! See what files `ls` accesses during a normal run:
-//! ```bash
-//! ftrace -- ls
-//! ```
-//!
-//! See all executable files:
-//! ```bash
-//! ftrace --type f --type x -- ls
-//! ```
-//!
-//! See _all paths that the program **tried to access**_ (even ones that didn't exist). This is
-//! sometimes useful to understand a search algorithm that a program uses to find linked libraries,
-//! etc.
-//! ```bash
-//! ftrace --non-existent -- ls
-//! ```
-//!
-//! Attach to an already running process (note that this requires elevated privileges):
-//! ```bash
-//! ftrace --pid 1729
-//! ```
-//!
-//! ### Caveats
-//!
-//! Since [`strace`] outputs via STDERR, if the program being run also emits output over STDERR it
-//! can confuse `ftrace`. For this reason any line that `ftrace` doesn't recognise is ignored and not
-//! parsed. You can print lines that weren't recognised with the `--invalid` flag.
-//!
-//! # Installation
-//!
-//! First and foremost, make sure you've installed [`strace`] on your system.
-//! It's almost always in your distribution's package manager.
-//!
-//! ### Precompiled binaries
-//!
-//! <!-- See the [releases] page for pre-compiled binaries. -->
-//! Coming Soon! (GitHub actions is yet to be configured for this repository.)
-//!
-//! ### Via Cargo
-//!
-//! **NOTE**: The minimum Rust version required is `1.46.0`.
-//!
-//! ```bash
-//! cargo install ftrace
-//! ```
-//!
-//! ### From Source (via Cargo)
-//!
-//! **NOTE**: The minimum Rust version required is `1.46.0`.
-//!
-//! ```bash
-//! git clone https://github.com/acheronfail/ftrace/
-//! cd ftrace
-//! cargo install --path .
-//! ```
-//!
-//! [`strace`]: https://strace.io/
-//! [tracefile]: https://gitlab.com/ole.tange/tangetools/tree/master/tracefile
+//! TODO
 
-use std::{collections::HashMap, os::unix::process::CommandExt, process::Command, ffi::c_void};
+use std::{collections::HashMap, ffi::c_void, os::unix::process::CommandExt, process::Command};
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use nix::{
-    libc::{user_regs_struct, c_long, AT_FDCWD},
+    libc::{c_long, user_regs_struct, AT_FDCWD},
     sys::{ptrace, wait::waitpid},
     unistd::Pid,
 };
 use owo_colors::OwoColorize;
 
-fn print_syscall(syscall_table: &HashMap<u64, String>, child_pid: Pid, regs: user_regs_struct, width: usize) {
+fn read_string(child_pid: Pid, addr: u64) -> String {
+    let mut s = String::new();
+    let mut pos = 0;
+    // `ptrace::read` only reads a word at a time from the process' memory
+    let word_size = 8;
+    let addr = addr as *mut c_void;
 
+    'read_string: loop {
+        let mut bytes = vec![];
+        let addr = unsafe { addr.offset(pos) };
+
+        let res: c_long;
+
+        match ptrace::read(child_pid, addr) {
+            Ok(c_long) => res = c_long,
+            Err(_) => break 'read_string,
+        }
+
+        bytes.write_i64::<LittleEndian>(res).unwrap(); // TODO: handle
+
+        for b in bytes {
+            if b != 0 {
+                s.push(b as char);
+            } else {
+                break 'read_string;
+            }
+        }
+
+        pos += word_size;
+    }
+
+    s
+}
+
+fn print_syscall(
+    syscall_table: &HashMap<u64, String>,
+    child_pid: Pid,
+    regs: user_regs_struct,
+    width: usize,
+) {
     if regs.orig_rax != 257 {
-        return
+        return;
     }
 
     // TODO: read enums: how to know?
@@ -89,36 +59,7 @@ fn print_syscall(syscall_table: &HashMap<u64, String>, child_pid: Pid, regs: use
 
     // TODO: read string arg; make this generic across calls
     if regs.orig_rax == 257 {
-        let mut s = String::new();
-        let mut count = 0;
-        let word_size = 8;
-
-        let addr = regs.rsi as *mut c_void;
-
-        'read_string: loop {
-            let mut bytes = vec![];
-            let addr = unsafe { addr.offset(count) };
-
-            let res: c_long;
-
-            match ptrace::read(child_pid, addr) {
-                Ok(c_long) => res = c_long,
-                Err(_) => break 'read_string,
-            }
-
-            bytes.write_i64::<LittleEndian>(res).unwrap(); // TODO: handle
-
-            for b in bytes {
-                if b != 0 {
-                    s.push(b as char);
-                } else {
-                    break 'read_string;
-                }
-            }
-
-            count += word_size;
-        }
-
+        let s = read_string(child_pid, regs.rsi);
         eprintln!("{:?}", s.red());
     }
 

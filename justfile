@@ -30,17 +30,8 @@ bump +TYPE:
     git tag "$version"
 
 gen-syscall:
-    ( \
-        echo -n '{'; \
-        gcc -M /usr/include/asm/unistd.h | \
-        tr -d '\\\n' | \
-        cut -d' ' -f2- | \
-        xargs cat | \
-        cpp -E -fpreprocessed -dM \
-        | awk '/__NR_/ {print $3 " " $2}' | \
-        sort -h | \
-        awk 'NR > 1 {printf "," } {printf "\"%s\": \"%s\"\n", $1, substr($2, 6)}'; \
-        echo '}'\
-    ) \
-    | jq \
-    > src/syscall.json 2>&1
+    #!/usr/bin/env bash
+
+    cd ./resources/generate-syscalls
+    podman build -t syscall-gen .
+    podman run -ti --rm syscall-gen | head -n 40
