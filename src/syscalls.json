@@ -414,9 +414,9 @@
         "key": "unsigned long",
         "matches": [
           {
-            "path": "linux-6.1.16/mm/nommu.c",
+            "path": "linux-6.1.16/mm/mmap.c",
             "text": "SYSCALL_DEFINE1(brk, unsigned long, brk)",
-            "offset": 9207,
+            "offset": 4706,
             "params": [
               {
                 "name": "brk",
@@ -425,9 +425,9 @@
             ]
           },
           {
-            "path": "linux-6.1.16/mm/mmap.c",
+            "path": "linux-6.1.16/mm/nommu.c",
             "text": "SYSCALL_DEFINE1(brk, unsigned long, brk)",
-            "offset": 4706,
+            "offset": 9207,
             "params": [
               {
                 "name": "brk",
@@ -3890,9 +3890,9 @@
         "key": "int, void __user *, unsigned long",
         "matches": [
           {
-            "path": "linux-6.1.16/arch/x86/kernel/ldt.c",
+            "path": "linux-6.1.16/arch/x86/um/ldt.c",
             "text": "SYSCALL_DEFINE3(modify_ldt, int , func , void __user * , ptr , unsigned long , bytecount)",
-            "offset": 16471,
+            "offset": 8674,
             "params": [
               {
                 "name": "func",
@@ -3909,9 +3909,9 @@
             ]
           },
           {
-            "path": "linux-6.1.16/arch/x86/um/ldt.c",
+            "path": "linux-6.1.16/arch/x86/kernel/ldt.c",
             "text": "SYSCALL_DEFINE3(modify_ldt, int , func , void __user * , ptr , unsigned long , bytecount)",
-            "offset": 8674,
+            "offset": 16471,
             "params": [
               {
                 "name": "func",
@@ -4013,36 +4013,6 @@
         "key": "int, unsigned long",
         "matches": [
           {
-            "path": "linux-6.1.16/arch/x86/kernel/process_32.c",
-            "text": "SYSCALL_DEFINE2(arch_prctl, int, option, unsigned long, arg2)",
-            "offset": 6100,
-            "params": [
-              {
-                "name": "option",
-                "type": "int"
-              },
-              {
-                "name": "arg2",
-                "type": "unsigned long"
-              }
-            ]
-          },
-          {
-            "path": "linux-6.1.16/arch/x86/kernel/process_64.c",
-            "text": "SYSCALL_DEFINE2(arch_prctl, int, option, unsigned long, arg2)",
-            "offset": 21975,
-            "params": [
-              {
-                "name": "option",
-                "type": "int"
-              },
-              {
-                "name": "arg2",
-                "type": "unsigned long"
-              }
-            ]
-          },
-          {
             "path": "linux-6.1.16/arch/x86/um/syscalls_32.c",
             "text": "SYSCALL_DEFINE2(arch_prctl, int, option, unsigned long, arg2)",
             "offset": 81,
@@ -4061,6 +4031,36 @@
             "path": "linux-6.1.16/arch/x86/um/syscalls_64.c",
             "text": "SYSCALL_DEFINE2(arch_prctl, int, option, unsigned long, arg2)",
             "offset": 2042,
+            "params": [
+              {
+                "name": "option",
+                "type": "int"
+              },
+              {
+                "name": "arg2",
+                "type": "unsigned long"
+              }
+            ]
+          },
+          {
+            "path": "linux-6.1.16/arch/x86/kernel/process_32.c",
+            "text": "SYSCALL_DEFINE2(arch_prctl, int, option, unsigned long, arg2)",
+            "offset": 6100,
+            "params": [
+              {
+                "name": "option",
+                "type": "int"
+              },
+              {
+                "name": "arg2",
+                "type": "unsigned long"
+              }
+            ]
+          },
+          {
+            "path": "linux-6.1.16/arch/x86/kernel/process_64.c",
+            "text": "SYSCALL_DEFINE2(arch_prctl, int, option, unsigned long, arg2)",
+            "offset": 21975,
             "params": [
               {
                 "name": "option",
@@ -5661,9 +5661,9 @@
         "key": "const clockid_t, const struct __kernel_timespec __user *",
         "matches": [
           {
-            "path": "linux-6.1.16/kernel/time/posix-timers.c",
+            "path": "linux-6.1.16/kernel/time/posix-stubs.c",
             "text": "SYSCALL_DEFINE2(clock_settime, const clockid_t, which_clock, const struct __kernel_timespec __user *, tp)",
-            "offset": 29407,
+            "offset": 1478,
             "params": [
               {
                 "name": "which_clock",
@@ -5676,9 +5676,9 @@
             ]
           },
           {
-            "path": "linux-6.1.16/kernel/time/posix-stubs.c",
+            "path": "linux-6.1.16/kernel/time/posix-timers.c",
             "text": "SYSCALL_DEFINE2(clock_settime, const clockid_t, which_clock, const struct __kernel_timespec __user *, tp)",
-            "offset": 1478,
+            "offset": 29407,
             "params": [
               {
                 "name": "which_clock",
@@ -5703,9 +5703,9 @@
         "key": "const clockid_t, struct __kernel_timespec __user *",
         "matches": [
           {
-            "path": "linux-6.1.16/kernel/time/posix-timers.c",
+            "path": "linux-6.1.16/kernel/time/posix-stubs.c",
             "text": "SYSCALL_DEFINE2(clock_gettime, const clockid_t, which_clock, struct __kernel_timespec __user *, tp)",
-            "offset": 29753,
+            "offset": 2147,
             "params": [
               {
                 "name": "which_clock",
@@ -5718,9 +5718,9 @@
             ]
           },
           {
-            "path": "linux-6.1.16/kernel/time/posix-stubs.c",
+            "path": "linux-6.1.16/kernel/time/posix-timers.c",
             "text": "SYSCALL_DEFINE2(clock_gettime, const clockid_t, which_clock, struct __kernel_timespec __user *, tp)",
-            "offset": 2147,
+            "offset": 29753,
             "params": [
               {
                 "name": "which_clock",
@@ -5745,9 +5745,9 @@
         "key": "const clockid_t, struct __kernel_timespec __user *",
         "matches": [
           {
-            "path": "linux-6.1.16/kernel/time/posix-timers.c",
+            "path": "linux-6.1.16/kernel/time/posix-stubs.c",
             "text": "SYSCALL_DEFINE2(clock_getres, const clockid_t, which_clock, struct __kernel_timespec __user *, tp)",
-            "offset": 30731,
+            "offset": 2436,
             "params": [
               {
                 "name": "which_clock",
@@ -5760,9 +5760,9 @@
             ]
           },
           {
-            "path": "linux-6.1.16/kernel/time/posix-stubs.c",
+            "path": "linux-6.1.16/kernel/time/posix-timers.c",
             "text": "SYSCALL_DEFINE2(clock_getres, const clockid_t, which_clock, struct __kernel_timespec __user *, tp)",
-            "offset": 2436,
+            "offset": 30731,
             "params": [
               {
                 "name": "which_clock",
@@ -5787,9 +5787,9 @@
         "key": "const clockid_t, int, const struct __kernel_timespec __user *, struct __kernel_timespec __user *",
         "matches": [
           {
-            "path": "linux-6.1.16/kernel/time/posix-timers.c",
+            "path": "linux-6.1.16/kernel/time/posix-stubs.c",
             "text": "SYSCALL_DEFINE4(clock_nanosleep, const clockid_t, which_clock, int, flags, const struct __kernel_timespec __user *, rqtp, struct __kernel_timespec __user *, rmtp)",
-            "offset": 33156,
+            "offset": 2811,
             "params": [
               {
                 "name": "which_clock",
@@ -5810,9 +5810,9 @@
             ]
           },
           {
-            "path": "linux-6.1.16/kernel/time/posix-stubs.c",
+            "path": "linux-6.1.16/kernel/time/posix-timers.c",
             "text": "SYSCALL_DEFINE4(clock_nanosleep, const clockid_t, which_clock, int, flags, const struct __kernel_timespec __user *, rqtp, struct __kernel_timespec __user *, rmtp)",
-            "offset": 2811,
+            "offset": 33156,
             "params": [
               {
                 "name": "which_clock",

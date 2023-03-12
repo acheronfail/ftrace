@@ -1,31 +1,44 @@
-import { spawnSync } from 'node:child_process';
+import { $, TemplateExpression } from 'execa';
 import { RgMatch, RgMessage, RgSummary } from './ripgrep.types.js';
 import { FindSyscallResult } from './types.js';
 
-const filterRipgrepMatches = (x: RgMessage): x is RgMatch => x.type == 'match';
-const parseRipgrepStdout = (buf: Buffer): RgMessage[] =>
-  buf
-    .toString()
+// When running, don't open stdin, and also ignore non-zero return codes
+// For stdin, see https://github.com/sindresorhus/execa/issues/549
+const $$ = (strings: TemplateStringsArray, ...values: TemplateExpression[]) =>
+  $({ stdin: 'ignore' })(strings, ...values).catch((err) => err);
+
+const parseRipgrepStdout = (stdout: string): RgMessage[] =>
+  stdout
     .split(/\n/)
     .filter(Boolean)
     .map((line: string): RgMessage => JSON.parse(line) as RgMessage);
 
-// TODO: test if making this async speeds things up, I don't think it'll make up difference since
-// rg will already be using all the CPUs, and it'll probably just cause CPU contention
-export function findSyscall(cwd: string, name: string): FindSyscallResult {
-  // search for definitions of syscalls that have parameters
-  let results = parseRipgrepStdout(spawnSync('rg', ['--json', `^SYSCALL_DEFINE\\d+\\(${name},.*?`, cwd]).stdout);
-  let summary = results.find<RgSummary>((x): x is RgSummary => x.type === 'summary')!;
-  if (summary.data.stats.matches > 0) {
-    return { parameterless: false, results: results.filter(filterRipgrepMatches) };
+async function runRipgrep(cwd: string, pattern: string): Promise<RgMessage[]> {
+  const { stdout } = await $$`rg --json ${pattern} ${cwd}`;
+  return parseRipgrepStdout(stdout);
+}
+
+function isRipgrepEmpty(rgOutput: RgMessage[]): boolean {
+  return rgOutput.find<RgSummary>((x): x is RgSummary => x.type === 'summary')!.data.stats.matches === 0;
+}
+
+export async function findSyscall(cwd: string, name: string): Promise<FindSyscallResult> {
+  // pattern for definitions with parameters
+  let rgOutput = await runRipgrep(cwd, `^SYSCALL_DEFINE\\d+\\(${name},.*?`);
+  let parameterless = false;
+
+  // if nothing found, search for a definition without parameters
+  if (isRipgrepEmpty(rgOutput)) {
+    rgOutput = await runRipgrep(cwd, `__SYSCALL\\(__NR_${name},`);
+    parameterless = true;
   }
 
-  // search for definitions of syscalls that don't require any parameters
-  results = parseRipgrepStdout(spawnSync('rg', ['--json', `__SYSCALL\\(__NR_${name},`, cwd]).stdout);
-  summary = results.find<RgSummary>((x): x is RgSummary => x.type === 'summary')!;
-  if (summary.data.stats.matches > 0) {
-    return { parameterless: true, results: results.filter(filterRipgrepMatches) };
+  // if we haven't found anything yet, then error
+  if (isRipgrepEmpty(rgOutput)) {
+    throw new Error(`Failed to find definition for ${name}`);
   }
 
-  throw new Error(`Failed to find definition for ${name}`);
+  const results = rgOutput.filter((x): x is RgMatch => x.type === 'match');
+  results.sort((a, b) => a.data.absolute_offset - b.data.absolute_offset);
+  return { parameterless, results };
 }
