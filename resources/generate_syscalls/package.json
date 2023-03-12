@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.2",
+    "@types/node": "^18.15.0"
+  },
+  "dependencies": {
+    "minimist": "^1.2.8",
+    "tsx": "^3.12.4"
+  }
+}

@@ -29,9 +29,35 @@ bump +TYPE:
     git commit -v -m "$version"
     git tag "$version"
 
-gen-syscall:
+# Check that commands exist
+@check +CMDS:
+	echo {{CMDS}} | xargs -n1 sh -c 'if ! command -v $1 >/dev/null 2>&1 /dev/null; then echo "$1 is required!"; exit 1; fi' bash
+
+
+gen-syscall: (check "yarn" "rg" "curl" "tar")
     #!/usr/bin/env bash
 
-    cd ./resources/generate-syscalls
-    podman build -t syscall-gen .
-    podman run -ti --rm syscall-gen | head -n 40
+    set -xe
+
+    cd ./resources/generate_syscalls
+    out_file="../../src/syscalls.json"
+
+    k_version="6.1.16"
+    k_link="https://cdn.kernel.org/pub/linux/kernel/v${k_version%%.*}.x/linux-${k_version}.tar.xz"
+    k_dir="linux-${k_version}"
+
+    syscall_table="${k_dir}/arch/x86/entry/syscalls/syscall_64.tbl"
+
+    if [ ! -d "$k_dir" ]; then
+        curl $k_link > linux-${k_version}.tar.xz
+        tar xvf linux-${k_version}.tar.xz
+        rm linux-${k_version}.tar.xz
+    fi
+
+    if [ ! -f ${syscall_table} ]; then
+        echo "$syscall_table doesn't exist"
+        exit 1
+    fi
+
+    yarn
+    yarn start --output "$out_file" --linux-source "${k_dir}"

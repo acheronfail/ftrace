@@ -75,7 +75,8 @@ fn print_syscall(
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let syscall_table: HashMap<u64, String> = serde_json::from_str(include_str!("syscall.json"))?;
+    // FIXME: use new syscalls.json file!
+    let syscall_table: HashMap<u64, String> = serde_json::from_str(include_str!("syscalls.json"))?;
     let longest_syscall_name = 3;
     // let longest_syscall_name = syscall_table
     //     .iter()
