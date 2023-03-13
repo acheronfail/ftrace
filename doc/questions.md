@@ -1,5 +1,11 @@
 # Unanswered questions
 
+## I only just discovered `strace -e trace=%file ...`
+
+...does this mean `ftrace` is completely useless? 😅
+
+Yeah, I think so...
+
 ## the first syscall is `execve` without any arguments - why does this happen?
 
 * `lurk` shows `execve("", "", "") = 0`
@@ -7,6 +13,8 @@
 * https://github.com/strace/strace/blob/5b4f05f42a12596fa895b7665bbd740b5e5cc2a8/src/execve.c
 
 ## `mmap`'s 6th arg is an fd, but sometimes it's `0xfffffff`. What does that mean?
+
+...
 
 ## Misc. things to investigate
 
