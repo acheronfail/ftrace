@@ -13,7 +13,7 @@ pub fn replace_nonprintable(input: &[u8]) -> String {
 
             match chr {
                 // space
-                ' ' => output.push('·'),
+                ' ' => output.push(' '),
                 // tab
                 '\t' => output.push('↹'),
                 // line feed
