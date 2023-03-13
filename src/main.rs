@@ -1,6 +1,8 @@
 //! TODO
 
-use std::{collections::HashMap, ffi::c_void, os::unix::process::CommandExt, process::Command};
+use std::{
+    collections::HashMap, ffi::c_void, fmt::format, os::unix::process::CommandExt, process::Command,
+};
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use nix::{
@@ -9,6 +11,9 @@ use nix::{
     unistd::Pid,
 };
 use owo_colors::OwoColorize;
+use syscall::SyscallInfo;
+
+mod syscall;
 
 fn read_string(child_pid: Pid, addr: u64) -> String {
     let mut s = String::new();
@@ -44,45 +49,69 @@ fn read_string(child_pid: Pid, addr: u64) -> String {
     s
 }
 
+// fn print_param(child_pid: Pid, syscall_info: &SyscallInfo, register: u64) -> String {
+//     if ()
+// }
+
 fn print_syscall(
-    syscall_table: &HashMap<u64, String>,
+    syscall_table: &HashMap<u64, SyscallInfo>,
     child_pid: Pid,
     regs: user_regs_struct,
     width: usize,
 ) {
-    if regs.orig_rax != 257 {
-        return;
-    }
-
     // TODO: read enums: how to know?
-    eprintln!("{:x}", AT_FDCWD);
+    // eprintln!("{:x}", AT_FDCWD);
 
-    // TODO: read string arg; make this generic across calls
-    if regs.orig_rax == 257 {
-        let s = read_string(child_pid, regs.rsi);
-        eprintln!("{:?}", s.red());
+    let syscall_info = syscall_table.get(&regs.orig_rax).expect("Unknown syscall!");
+    let syscall_name = syscall_info.name.bright_green();
+    let syscall_result = regs.rax.blue();
+    match syscall_info.param_types() {
+        None => eprintln!(
+            "{:>width$}() = {:x}",
+            syscall_name,
+            syscall_result,
+            width = width
+        ),
+        Some(signatures) => {
+            // TODO: iter signatures and check which suits best
+            let params = &signatures[0];
+            // https://stackoverflow.com/a/2538212/5552584
+            let registers = [regs.rdi, regs.rsi, regs.rdx, regs.rcx, regs.r8, regs.r9];
+
+            eprint!("{:>width$}(", syscall_name, width = width);
+            for (i, r#type) in params.iter().enumerate() {
+                if i > 0 {
+                    eprint!(", ");
+                }
+
+                let value = registers[i];
+                // TODO: a better way of recognising strings! 😂
+                if r#type.contains("char ") {
+                    // FIXME: why is it a string? is it a string? do I not understand "char" C types?
+                    if syscall_info.name == "getrandom" {
+                        eprint!("SKIPPED");
+                    } else {
+                        eprint!(r#""{}""#, read_string(child_pid, value).yellow());
+                    }
+                } else {
+                    eprint!("{:x}", value)
+                }
+            }
+
+            eprintln!(") = {:x}", syscall_result);
+        }
     }
-
-    eprintln!(
-        "{:>width$}({:x}, {:x}, {:x}, ...) = {:x}",
-        syscall_table[&regs.orig_rax].bright_green(),
-        regs.rdi.cyan(),
-        regs.rsi.cyan(),
-        regs.rdx.cyan(),
-        regs.rax.yellow(),
-        width = width
-    );
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // FIXME: use new syscalls.json file!
-    let syscall_table: HashMap<u64, String> = serde_json::from_str(include_str!("syscalls.json"))?;
-    let longest_syscall_name = 3;
-    // let longest_syscall_name = syscall_table
-    //     .iter()
-    //     .map(|(_, value)| value.len())
-    //     .max_by(|a, b| usize::cmp(a, b))
-    //     .unwrap();
+    let syscalls: Vec<SyscallInfo> = serde_json::from_str(include_str!("syscalls.json"))?;
+    let syscall_table: HashMap<u64, SyscallInfo> =
+        syscalls.into_iter().map(|info| (info.id, info)).collect();
+    let longest_syscall_name = syscall_table
+        .iter()
+        .map(|(_, info)| info.name.len())
+        .max_by(|a, b| usize::cmp(a, b))
+        .unwrap();
 
     // TODO: argument parsing
 
