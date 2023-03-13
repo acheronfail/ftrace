@@ -28,11 +28,6 @@ const definitions: SyscallDefinition[] = await Promise.all(
       return { id, abi, name, implName };
     })
     .map(async ({ id, abi, name, implName }) => {
-      // these seem to be reserved, but aren't in the linux source code (as far as I have seen)
-      if (abi == '64') {
-        return { id, abi, name, implName, skipped: 'unimplemented' };
-      }
-
       // syscalls that are reserved but unimplemented
       if (UNIMPLEMENTED_SYSCALLS.includes(name)) {
         return { id, abi, name, implName, skipped: 'unimplemented' };
@@ -45,6 +40,10 @@ const definitions: SyscallDefinition[] = await Promise.all(
 
       // if there's no implementation name, then we've encountered a syscall we can't find
       if (!implName) {
+        // these seem to be reserved, but aren't in the linux source code (as far as I have seen)
+        if (abi == '64') {
+          return { id, abi, name, skipped: 'unimplemented' };
+        }
         throw new Error(`No implementation and no exception for ${name}`);
       }
 
@@ -79,7 +78,7 @@ const definitions: SyscallDefinition[] = await Promise.all(
 
               // Read the file for the full match
               const file = await fs.readFile(path, 'utf-8');
-              const fullText = strip(file.substring(offset, file.indexOf(')', offset) + 1));
+              const fullText = strip(file.substring(offset - 1, file.indexOf(')', offset) + 1));
               return { ...match, text: fullText };
             })
         )

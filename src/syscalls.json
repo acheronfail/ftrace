@@ -443,8 +443,36 @@
     "id": 13,
     "abi": "64",
     "name": "rt_sigaction",
-    "implName": "sys_rt_sigaction",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, const struct sigaction __user *, struct sigaction __user *, size_t",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/signal.c",
+            "text": "SYSCALL_DEFINE4(rt_sigaction, int, sig, const struct sigaction __user *, act, struct sigaction __user *, oact, size_t, sigsetsize)",
+            "offset": 116179,
+            "params": [
+              {
+                "name": "sig",
+                "type": "int"
+              },
+              {
+                "name": "act",
+                "type": "const struct sigaction __user *"
+              },
+              {
+                "name": "oact",
+                "type": "struct sigaction __user *"
+              },
+              {
+                "name": "sigsetsize",
+                "type": "size_t"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 14,
@@ -485,15 +513,38 @@
     "id": 15,
     "abi": "64",
     "name": "rt_sigreturn",
-    "implName": "sys_rt_sigreturn",
-    "skipped": "unimplemented"
+    "skipped": "parameterless"
   },
   {
     "id": 16,
     "abi": "64",
     "name": "ioctl",
-    "implName": "sys_ioctl",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "unsigned int, unsigned int, unsigned long",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/ioctl.c",
+            "text": "SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd, unsigned long, arg)",
+            "offset": 21185,
+            "params": [
+              {
+                "name": "fd",
+                "type": "unsigned int"
+              },
+              {
+                "name": "cmd",
+                "type": "unsigned int"
+              },
+              {
+                "name": "arg",
+                "type": "unsigned long"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 17,
@@ -569,15 +620,63 @@
     "id": 19,
     "abi": "64",
     "name": "readv",
-    "implName": "sys_readv",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "unsigned long, const struct iovec __user *, unsigned long",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/read_write.c",
+            "text": "SYSCALL_DEFINE3(readv, unsigned long, fd, const struct iovec __user *, vec, unsigned long, vlen)",
+            "offset": 24346,
+            "params": [
+              {
+                "name": "fd",
+                "type": "unsigned long"
+              },
+              {
+                "name": "vec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "vlen",
+                "type": "unsigned long"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 20,
     "abi": "64",
     "name": "writev",
-    "implName": "sys_writev",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "unsigned long, const struct iovec __user *, unsigned long",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/read_write.c",
+            "text": "SYSCALL_DEFINE3(writev, unsigned long, fd, const struct iovec __user *, vec, unsigned long, vlen)",
+            "offset": 24486,
+            "params": [
+              {
+                "name": "fd",
+                "type": "unsigned long"
+              },
+              {
+                "name": "vec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "vlen",
+                "type": "unsigned long"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 21,
@@ -1271,22 +1370,106 @@
     "id": 45,
     "abi": "64",
     "name": "recvfrom",
-    "implName": "sys_recvfrom",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, void __user *, size_t, unsigned int, struct sockaddr __user *, int __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/net/socket.c",
+            "text": "SYSCALL_DEFINE6(recvfrom, int, fd, void __user *, ubuf, size_t, size, unsigned int, flags, struct sockaddr __user *, addr, int __user *, addr_len)",
+            "offset": 55227,
+            "params": [
+              {
+                "name": "fd",
+                "type": "int"
+              },
+              {
+                "name": "ubuf",
+                "type": "void __user *"
+              },
+              {
+                "name": "size",
+                "type": "size_t"
+              },
+              {
+                "name": "flags",
+                "type": "unsigned int"
+              },
+              {
+                "name": "addr",
+                "type": "struct sockaddr __user *"
+              },
+              {
+                "name": "addr_len",
+                "type": "int __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 46,
     "abi": "64",
     "name": "sendmsg",
-    "implName": "sys_sendmsg",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, struct user_msghdr __user *, unsigned int",
+        "matches": [
+          {
+            "path": "linux-6.1.16/net/socket.c",
+            "text": "SYSCALL_DEFINE3(sendmsg, int, fd, struct user_msghdr __user *, msg, unsigned int, flags)",
+            "offset": 64925,
+            "params": [
+              {
+                "name": "fd",
+                "type": "int"
+              },
+              {
+                "name": "msg",
+                "type": "struct user_msghdr __user *"
+              },
+              {
+                "name": "flags",
+                "type": "unsigned int"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 47,
     "abi": "64",
     "name": "recvmsg",
-    "implName": "sys_recvmsg",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, struct user_msghdr __user *, unsigned int",
+        "matches": [
+          {
+            "path": "linux-6.1.16/net/socket.c",
+            "text": "SYSCALL_DEFINE3(recvmsg, int, fd, struct user_msghdr __user *, msg, unsigned int, flags)",
+            "offset": 69807,
+            "params": [
+              {
+                "name": "fd",
+                "type": "int"
+              },
+              {
+                "name": "msg",
+                "type": "struct user_msghdr __user *"
+              },
+              {
+                "name": "flags",
+                "type": "unsigned int"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 48,
@@ -1474,15 +1657,79 @@
     "id": 54,
     "abi": "64",
     "name": "setsockopt",
-    "implName": "sys_setsockopt",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, int, int, char __user *, int",
+        "matches": [
+          {
+            "path": "linux-6.1.16/net/socket.c",
+            "text": "SYSCALL_DEFINE5(setsockopt, int, fd, int, level, int, optname, char __user *, optval, int, optlen)",
+            "offset": 57197,
+            "params": [
+              {
+                "name": "fd",
+                "type": "int"
+              },
+              {
+                "name": "level",
+                "type": "int"
+              },
+              {
+                "name": "optname",
+                "type": "int"
+              },
+              {
+                "name": "optval",
+                "type": "char __user *"
+              },
+              {
+                "name": "optlen",
+                "type": "int"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 55,
     "abi": "64",
     "name": "getsockopt",
-    "implName": "sys_getsockopt",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, int, int, char __user *, int __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/net/socket.c",
+            "text": "SYSCALL_DEFINE5(getsockopt, int, fd, int, level, int, optname, char __user *, optval, int __user *, optlen)",
+            "offset": 58461,
+            "params": [
+              {
+                "name": "fd",
+                "type": "int"
+              },
+              {
+                "name": "level",
+                "type": "int"
+              },
+              {
+                "name": "optname",
+                "type": "int"
+              },
+              {
+                "name": "optval",
+                "type": "char __user *"
+              },
+              {
+                "name": "optlen",
+                "type": "int __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 56,
@@ -1634,8 +1881,32 @@
     "id": 59,
     "abi": "64",
     "name": "execve",
-    "implName": "sys_execve",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "const char __user *, const char __user *const __user *, const char __user *const __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/exec.c",
+            "text": "SYSCALL_DEFINE3(execve, const char __user *, filename, const char __user *const __user *, argv, const char __user *const __user *, envp)",
+            "offset": 50456,
+            "params": [
+              {
+                "name": "filename",
+                "type": "const char __user *"
+              },
+              {
+                "name": "argv",
+                "type": "const char __user *const __user *"
+              },
+              {
+                "name": "envp",
+                "type": "const char __user *const __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 60,
@@ -1732,7 +2003,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE1(uname, struct old_utsname __user *, name)",
+            "text": "SYSCALL_DEFINE1(uname, struct old_utsname __user *, name)",
             "offset": 29864,
             "params": [
               {
@@ -2628,7 +2899,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE1(umask, int, mask)",
+            "text": "SYSCALL_DEFINE1(umask, int, mask)",
             "offset": 44173,
             "params": [
               {
@@ -2678,7 +2949,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE2(getrlimit, unsigned int, resource, struct rlimit __user *, rlim)",
+            "text": "SYSCALL_DEFINE2(getrlimit, unsigned int, resource, struct rlimit __user *, rlim)",
             "offset": 34520,
             "params": [
               {
@@ -2705,7 +2976,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE2(getrusage, int, who, struct rusage __user *, ru)",
+            "text": "SYSCALL_DEFINE2(getrusage, int, who, struct rusage __user *, ru)",
             "offset": 43605,
             "params": [
               {
@@ -2732,7 +3003,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE1(sysinfo, struct sysinfo __user *, info)",
+            "text": "SYSCALL_DEFINE1(sysinfo, struct sysinfo __user *, info)",
             "offset": 65309,
             "params": [
               {
@@ -2755,7 +3026,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE1(times, struct tms __user *, tbuf)",
+            "text": "SYSCALL_DEFINE1(times, struct tms __user *, tbuf)",
             "offset": 23536,
             "params": [
               {
@@ -2772,8 +3043,36 @@
     "id": 101,
     "abi": "64",
     "name": "ptrace",
-    "implName": "sys_ptrace",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "long, long, unsigned long, unsigned long",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/ptrace.c",
+            "text": "SYSCALL_DEFINE4(ptrace, long, request, long, pid, unsigned long, addr, unsigned long, data)",
+            "offset": 33878,
+            "params": [
+              {
+                "name": "request",
+                "type": "long"
+              },
+              {
+                "name": "pid",
+                "type": "long"
+              },
+              {
+                "name": "addr",
+                "type": "unsigned long"
+              },
+              {
+                "name": "data",
+                "type": "unsigned long"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 102,
@@ -2886,7 +3185,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE2(setpgid, pid_t, pid, pid_t, pgid)",
+            "text": "SYSCALL_DEFINE2(setpgid, pid_t, pid, pid_t, pgid)",
             "offset": 24998,
             "params": [
               {
@@ -3163,7 +3462,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE1(getpgid, pid_t, pid)",
+            "text": "SYSCALL_DEFINE1(getpgid, pid_t, pid)",
             "offset": 26788,
             "params": [
               {
@@ -3209,7 +3508,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE1(setfsgid, gid_t, gid)",
+            "text": "SYSCALL_DEFINE1(setfsgid, gid_t, gid)",
             "offset": 21633,
             "params": [
               {
@@ -3232,7 +3531,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE1(getsid, pid_t, pid)",
+            "text": "SYSCALL_DEFINE1(getsid, pid_t, pid)",
             "offset": 26948,
             "params": [
               {
@@ -3303,22 +3602,94 @@
     "id": 127,
     "abi": "64",
     "name": "rt_sigpending",
-    "implName": "sys_rt_sigpending",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "sigset_t __user *, size_t",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/signal.c",
+            "text": "SYSCALL_DEFINE2(rt_sigpending, sigset_t __user *, uset, size_t, sigsetsize)",
+            "offset": 86281,
+            "params": [
+              {
+                "name": "uset",
+                "type": "sigset_t __user *"
+              },
+              {
+                "name": "sigsetsize",
+                "type": "size_t"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 128,
     "abi": "64",
     "name": "rt_sigtimedwait",
-    "implName": "sys_rt_sigtimedwait",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "const sigset_t __user *, siginfo_t __user *, const struct __kernel_timespec __user *, size_t",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/signal.c",
+            "text": "SYSCALL_DEFINE4(rt_sigtimedwait, const sigset_t __user *, uthese, siginfo_t __user *, uinfo, const struct __kernel_timespec __user *, uts, size_t, sigsetsize)",
+            "offset": 97606,
+            "params": [
+              {
+                "name": "uthese",
+                "type": "const sigset_t __user *"
+              },
+              {
+                "name": "uinfo",
+                "type": "siginfo_t __user *"
+              },
+              {
+                "name": "uts",
+                "type": "const struct __kernel_timespec __user *"
+              },
+              {
+                "name": "sigsetsize",
+                "type": "size_t"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 129,
     "abi": "64",
     "name": "rt_sigqueueinfo",
-    "implName": "sys_rt_sigqueueinfo",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "pid_t, int, siginfo_t __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/signal.c",
+            "text": "SYSCALL_DEFINE3(rt_sigqueueinfo, pid_t, pid, int, sig, siginfo_t __user *, uinfo)",
+            "offset": 106064,
+            "params": [
+              {
+                "name": "pid",
+                "type": "pid_t"
+              },
+              {
+                "name": "sig",
+                "type": "int"
+              },
+              {
+                "name": "uinfo",
+                "type": "siginfo_t __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 130,
@@ -3351,8 +3722,28 @@
     "id": 131,
     "abi": "64",
     "name": "sigaltstack",
-    "implName": "sys_sigaltstack",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "const stack_t __user *, stack_t __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/signal.c",
+            "text": "SYSCALL_DEFINE2(sigaltstack,const stack_t __user *,uss, stack_t __user *,uoss)",
+            "offset": 111844,
+            "params": [
+              {
+                "name": "uss",
+                "type": "const stack_t __user *"
+              },
+              {
+                "name": "uoss",
+                "type": "stack_t __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 132,
@@ -3963,7 +4354,7 @@
     "abi": "64",
     "name": "_sysctl",
     "implName": "sys_ni_syscall",
-    "skipped": "unimplemented"
+    "skipped": "deprecated"
   },
   {
     "id": 157,
@@ -3975,7 +4366,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5)",
+            "text": "SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5)",
             "offset": 56701,
             "params": [
               {
@@ -4109,7 +4500,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE2(setrlimit, unsigned int, resource, struct rlimit __user *, rlim)",
+            "text": "SYSCALL_DEFINE2(setrlimit, unsigned int, resource, struct rlimit __user *, rlim)",
             "offset": 39561,
             "params": [
               {
@@ -4345,7 +4736,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE2(sethostname, char __user *, name, int, len)",
+            "text": "SYSCALL_DEFINE2(sethostname, char __user *, name, int, len)",
             "offset": 30982,
             "params": [
               {
@@ -4372,7 +4763,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE2(setdomainname, char __user *, name, int, len)",
+            "text": "SYSCALL_DEFINE2(setdomainname, char __user *, name, int, len)",
             "offset": 32064,
             "params": [
               {
@@ -4399,7 +4790,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/arch/x86/kernel/ioport.c",
-            "text": "YSCALL_DEFINE1(iopl, unsigned int, level)",
+            "text": "SYSCALL_DEFINE1(iopl, unsigned int, level)",
             "offset": 4688,
             "params": [
               {
@@ -4410,7 +4801,7 @@
           },
           {
             "path": "linux-6.1.16/arch/x86/kernel/ioport.c",
-            "text": "YSCALL_DEFINE1(iopl, unsigned int, level)",
+            "text": "SYSCALL_DEFINE1(iopl, unsigned int, level)",
             "offset": 5396,
             "params": [
               {
@@ -4433,7 +4824,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/arch/x86/kernel/ioport.c",
-            "text": "YSCALL_DEFINE3(ioperm, unsigned long, from, unsigned long, num, int, turn_on)",
+            "text": "SYSCALL_DEFINE3(ioperm, unsigned long, from, unsigned long, num, int, turn_on)",
             "offset": 3964,
             "params": [
               {
@@ -4452,7 +4843,7 @@
           },
           {
             "path": "linux-6.1.16/arch/x86/kernel/ioport.c",
-            "text": "YSCALL_DEFINE3(ioperm, unsigned long, from, unsigned long, num, int, turn_on)",
+            "text": "SYSCALL_DEFINE3(ioperm, unsigned long, from, unsigned long, num, int, turn_on)",
             "offset": 5295,
             "params": [
               {
@@ -5218,8 +5609,28 @@
     "id": 206,
     "abi": "64",
     "name": "io_setup",
-    "implName": "sys_io_setup",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "unsigned, aio_context_t __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/aio.c",
+            "text": "SYSCALL_DEFINE2(io_setup, unsigned, nr_events, aio_context_t __user *, ctxp)",
+            "offset": 33774,
+            "params": [
+              {
+                "name": "nr_events",
+                "type": "unsigned"
+              },
+              {
+                "name": "ctxp",
+                "type": "aio_context_t __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 207,
@@ -5287,8 +5698,32 @@
     "id": 209,
     "abi": "64",
     "name": "io_submit",
-    "implName": "sys_io_submit",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "aio_context_t, long, struct iocb __user * __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/aio.c",
+            "text": "SYSCALL_DEFINE3(io_submit, aio_context_t, ctx_id, long, nr, struct iocb __user * __user *, iocbpp)",
+            "offset": 53917,
+            "params": [
+              {
+                "name": "ctx_id",
+                "type": "aio_context_t"
+              },
+              {
+                "name": "nr",
+                "type": "long"
+              },
+              {
+                "name": "iocbpp",
+                "type": "struct iocb __user * __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 210,
@@ -5541,8 +5976,32 @@
     "id": 222,
     "abi": "64",
     "name": "timer_create",
-    "implName": "sys_timer_create",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "const clockid_t, struct sigevent __user *, timer_t __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/time/posix-timers.c",
+            "text": "SYSCALL_DEFINE3(timer_create, const clockid_t, which_clock, struct sigevent __user *, timer_event_spec, timer_t __user *, created_timer_id)",
+            "offset": 16100,
+            "params": [
+              {
+                "name": "which_clock",
+                "type": "const clockid_t"
+              },
+              {
+                "name": "timer_event_spec",
+                "type": "struct sigevent __user *"
+              },
+              {
+                "name": "created_timer_id",
+                "type": "timer_t __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 223,
@@ -6246,8 +6705,28 @@
     "id": 244,
     "abi": "64",
     "name": "mq_notify",
-    "implName": "sys_mq_notify",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "mqd_t, const struct sigevent __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/ipc/mqueue.c",
+            "text": "SYSCALL_DEFINE2(mq_notify, mqd_t, mqdes, const struct sigevent __user *, u_notification)",
+            "offset": 37503,
+            "params": [
+              {
+                "name": "mqdes",
+                "type": "mqd_t"
+              },
+              {
+                "name": "u_notification",
+                "type": "const struct sigevent __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 245,
@@ -6284,15 +6763,75 @@
     "id": 246,
     "abi": "64",
     "name": "kexec_load",
-    "implName": "sys_kexec_load",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "unsigned long, unsigned long, struct kexec_segment __user *, unsigned long",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/kexec.c",
+            "text": "SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments, struct kexec_segment __user *, segments, unsigned long, flags)",
+            "offset": 5708,
+            "params": [
+              {
+                "name": "entry",
+                "type": "unsigned long"
+              },
+              {
+                "name": "nr_segments",
+                "type": "unsigned long"
+              },
+              {
+                "name": "segments",
+                "type": "struct kexec_segment __user *"
+              },
+              {
+                "name": "flags",
+                "type": "unsigned long"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 247,
     "abi": "64",
     "name": "waitid",
-    "implName": "sys_waitid",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, pid_t, struct siginfo __user *, int, struct rusage __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/exit.c",
+            "text": "SYSCALL_DEFINE5(waitid, int, which, pid_t, upid, struct siginfo __user *, infop, int, options, struct rusage __user *, ru)",
+            "offset": 43778,
+            "params": [
+              {
+                "name": "which",
+                "type": "int"
+              },
+              {
+                "name": "upid",
+                "type": "pid_t"
+              },
+              {
+                "name": "infop",
+                "type": "struct siginfo __user *"
+              },
+              {
+                "name": "options",
+                "type": "int"
+              },
+              {
+                "name": "ru",
+                "type": "struct rusage __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 248,
@@ -7112,15 +7651,59 @@
     "id": 273,
     "abi": "64",
     "name": "set_robust_list",
-    "implName": "sys_set_robust_list",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "struct robust_list_head __user *, size_t",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/futex/syscalls.c",
+            "text": "SYSCALL_DEFINE2(set_robust_list, struct robust_list_head __user *, head, size_t, len)",
+            "offset": 1021,
+            "params": [
+              {
+                "name": "head",
+                "type": "struct robust_list_head __user *"
+              },
+              {
+                "name": "len",
+                "type": "size_t"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 274,
     "abi": "64",
     "name": "get_robust_list",
-    "implName": "sys_get_robust_list",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, struct robust_list_head __user * __user *, size_t __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/futex/syscalls.c",
+            "text": "SYSCALL_DEFINE3(get_robust_list, int, pid, struct robust_list_head __user * __user *, head_ptr, size_t __user *, len_ptr)",
+            "offset": 1538,
+            "params": [
+              {
+                "name": "pid",
+                "type": "int"
+              },
+              {
+                "name": "head_ptr",
+                "type": "struct robust_list_head __user * __user *"
+              },
+              {
+                "name": "len_ptr",
+                "type": "size_t __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 275,
@@ -7239,15 +7822,79 @@
     "id": 278,
     "abi": "64",
     "name": "vmsplice",
-    "implName": "sys_vmsplice",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, const struct iovec __user *, unsigned long, unsigned int",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/splice.c",
+            "text": "SYSCALL_DEFINE4(vmsplice, int, fd, const struct iovec __user *, uiov, unsigned long, nr_segs, unsigned int, flags)",
+            "offset": 30842,
+            "params": [
+              {
+                "name": "fd",
+                "type": "int"
+              },
+              {
+                "name": "uiov",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "nr_segs",
+                "type": "unsigned long"
+              },
+              {
+                "name": "flags",
+                "type": "unsigned int"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 279,
     "abi": "64",
     "name": "move_pages",
-    "implName": "sys_move_pages",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "pid_t, unsigned long, const void __user * __user *, const int __user *, int __user *, int",
+        "matches": [
+          {
+            "path": "linux-6.1.16/mm/migrate.c",
+            "text": "SYSCALL_DEFINE6(move_pages, pid_t, pid, unsigned long, nr_pages, const void __user * __user *, pages, const int __user *, nodes, int __user *, status, int, flags)",
+            "offset": 54740,
+            "params": [
+              {
+                "name": "pid",
+                "type": "pid_t"
+              },
+              {
+                "name": "nr_pages",
+                "type": "unsigned long"
+              },
+              {
+                "name": "pages",
+                "type": "const void __user * __user *"
+              },
+              {
+                "name": "nodes",
+                "type": "const int __user *"
+              },
+              {
+                "name": "status",
+                "type": "int __user *"
+              },
+              {
+                "name": "flags",
+                "type": "int"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 280,
@@ -7710,22 +8357,114 @@
     "id": 295,
     "abi": "64",
     "name": "preadv",
-    "implName": "sys_preadv",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "unsigned long, const struct iovec __user *, unsigned long, unsigned long, unsigned long",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/read_write.c",
+            "text": "SYSCALL_DEFINE5(preadv, unsigned long, fd, const struct iovec __user *, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h)",
+            "offset": 24628,
+            "params": [
+              {
+                "name": "fd",
+                "type": "unsigned long"
+              },
+              {
+                "name": "vec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "vlen",
+                "type": "unsigned long"
+              },
+              {
+                "name": "pos_l",
+                "type": "unsigned long"
+              },
+              {
+                "name": "pos_h",
+                "type": "unsigned long"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 296,
     "abi": "64",
     "name": "pwritev",
-    "implName": "sys_pwritev",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "unsigned long, const struct iovec __user *, unsigned long, unsigned long, unsigned long",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/read_write.c",
+            "text": "SYSCALL_DEFINE5(pwritev, unsigned long, fd, const struct iovec __user *, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h)",
+            "offset": 25177,
+            "params": [
+              {
+                "name": "fd",
+                "type": "unsigned long"
+              },
+              {
+                "name": "vec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "vlen",
+                "type": "unsigned long"
+              },
+              {
+                "name": "pos_l",
+                "type": "unsigned long"
+              },
+              {
+                "name": "pos_h",
+                "type": "unsigned long"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 297,
     "abi": "64",
     "name": "rt_tgsigqueueinfo",
-    "implName": "sys_rt_tgsigqueueinfo",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "pid_t, pid_t, int, siginfo_t __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/kernel/signal.c",
+            "text": "SYSCALL_DEFINE4(rt_tgsigqueueinfo, pid_t, tgid, pid_t, pid, int, sig, siginfo_t __user *, uinfo)",
+            "offset": 107107,
+            "params": [
+              {
+                "name": "tgid",
+                "type": "pid_t"
+              },
+              {
+                "name": "pid",
+                "type": "pid_t"
+              },
+              {
+                "name": "sig",
+                "type": "int"
+              },
+              {
+                "name": "uinfo",
+                "type": "siginfo_t __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 298,
@@ -7737,7 +8476,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/events/core.c",
-            "text": "YSCALL_DEFINE5(perf_event_open, struct perf_event_attr __user *, attr_uptr, pid_t, pid, int, cpu, int, group_fd, unsigned long, flags)",
+            "text": "SYSCALL_DEFINE5(perf_event_open, struct perf_event_attr __user *, attr_uptr, pid_t, pid, int, cpu, int, group_fd, unsigned long, flags)",
             "offset": 296809,
             "params": [
               {
@@ -7770,8 +8509,40 @@
     "id": 299,
     "abi": "64",
     "name": "recvmmsg",
-    "implName": "sys_recvmmsg",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, struct mmsghdr __user *, unsigned int, unsigned int, struct __kernel_timespec __user *",
+        "matches": [
+          {
+            "path": "linux-6.1.16/net/socket.c",
+            "text": "SYSCALL_DEFINE5(recvmmsg, int, fd, struct mmsghdr __user *, mmsg, unsigned int, vlen, unsigned int, flags, struct __kernel_timespec __user *, timeout)",
+            "offset": 73269,
+            "params": [
+              {
+                "name": "fd",
+                "type": "int"
+              },
+              {
+                "name": "mmsg",
+                "type": "struct mmsghdr __user *"
+              },
+              {
+                "name": "vlen",
+                "type": "unsigned int"
+              },
+              {
+                "name": "flags",
+                "type": "unsigned int"
+              },
+              {
+                "name": "timeout",
+                "type": "struct __kernel_timespec __user *"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 300,
@@ -7849,7 +8620,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE4(prlimit64, pid_t, pid, unsigned int, resource, const struct rlimit64 __user *, new_rlim, struct rlimit64 __user *, old_rlim)",
+            "text": "SYSCALL_DEFINE4(prlimit64, pid_t, pid, unsigned int, resource, const struct rlimit64 __user *, new_rlim, struct rlimit64 __user *, old_rlim)",
             "offset": 38559,
             "params": [
               {
@@ -7998,8 +8769,36 @@
     "id": 307,
     "abi": "64",
     "name": "sendmmsg",
-    "implName": "sys_sendmmsg",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, struct mmsghdr __user *, unsigned int, unsigned int",
+        "matches": [
+          {
+            "path": "linux-6.1.16/net/socket.c",
+            "text": "SYSCALL_DEFINE4(sendmmsg, int, fd, struct mmsghdr __user *, mmsg, unsigned int, vlen, unsigned int, flags)",
+            "offset": 66620,
+            "params": [
+              {
+                "name": "fd",
+                "type": "int"
+              },
+              {
+                "name": "mmsg",
+                "type": "struct mmsghdr __user *"
+              },
+              {
+                "name": "vlen",
+                "type": "unsigned int"
+              },
+              {
+                "name": "flags",
+                "type": "unsigned int"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 308,
@@ -8038,7 +8837,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/kernel/sys.c",
-            "text": "YSCALL_DEFINE3(getcpu, unsigned __user *, cpup, unsigned __user *, nodep, struct getcpu_cache __user *, unused)",
+            "text": "SYSCALL_DEFINE3(getcpu, unsigned __user *, cpup, unsigned __user *, nodep, struct getcpu_cache __user *, unused)",
             "offset": 63406,
             "params": [
               {
@@ -8063,15 +8862,87 @@
     "id": 310,
     "abi": "64",
     "name": "process_vm_readv",
-    "implName": "sys_process_vm_readv",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "pid_t, const struct iovec __user *, unsigned long, const struct iovec __user *, unsigned long, unsigned long",
+        "matches": [
+          {
+            "path": "linux-6.1.16/mm/process_vm_access.c",
+            "text": "SYSCALL_DEFINE6(process_vm_readv, pid_t, pid, const struct iovec __user *, lvec, unsigned long, liovcnt, const struct iovec __user *, rvec, unsigned long, riovcnt, unsigned long, flags)",
+            "offset": 7886,
+            "params": [
+              {
+                "name": "pid",
+                "type": "pid_t"
+              },
+              {
+                "name": "lvec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "liovcnt",
+                "type": "unsigned long"
+              },
+              {
+                "name": "rvec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "riovcnt",
+                "type": "unsigned long"
+              },
+              {
+                "name": "flags",
+                "type": "unsigned long"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 311,
     "abi": "64",
     "name": "process_vm_writev",
-    "implName": "sys_process_vm_writev",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "pid_t, const struct iovec __user *, unsigned long, const struct iovec __user *, unsigned long, unsigned long",
+        "matches": [
+          {
+            "path": "linux-6.1.16/mm/process_vm_access.c",
+            "text": "SYSCALL_DEFINE6(process_vm_writev, pid_t, pid, const struct iovec __user *, lvec, unsigned long, liovcnt, const struct iovec __user *, rvec, unsigned long, riovcnt, unsigned long, flags)",
+            "offset": 8149,
+            "params": [
+              {
+                "name": "pid",
+                "type": "pid_t"
+              },
+              {
+                "name": "lvec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "liovcnt",
+                "type": "unsigned long"
+              },
+              {
+                "name": "rvec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "riovcnt",
+                "type": "unsigned long"
+              },
+              {
+                "name": "flags",
+                "type": "unsigned long"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 312,
@@ -8411,8 +9282,40 @@
     "id": 322,
     "abi": "64",
     "name": "execveat",
-    "implName": "sys_execveat",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "int, const char __user *, const char __user *const __user *, const char __user *const __user *, int",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/exec.c",
+            "text": "SYSCALL_DEFINE5(execveat, int, fd, const char __user *, filename, const char __user *const __user *, argv, const char __user *const __user *, envp, int, flags)",
+            "offset": 50654,
+            "params": [
+              {
+                "name": "fd",
+                "type": "int"
+              },
+              {
+                "name": "filename",
+                "type": "const char __user *"
+              },
+              {
+                "name": "argv",
+                "type": "const char __user *const __user *"
+              },
+              {
+                "name": "envp",
+                "type": "const char __user *const __user *"
+              },
+              {
+                "name": "flags",
+                "type": "int"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 323,
@@ -8546,15 +9449,87 @@
     "id": 327,
     "abi": "64",
     "name": "preadv2",
-    "implName": "sys_preadv2",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "unsigned long, const struct iovec __user *, unsigned long, unsigned long, unsigned long, rwf_t",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/read_write.c",
+            "text": "SYSCALL_DEFINE6(preadv2, unsigned long, fd, const struct iovec __user *, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, rwf_t, flags)",
+            "offset": 24863,
+            "params": [
+              {
+                "name": "fd",
+                "type": "unsigned long"
+              },
+              {
+                "name": "vec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "vlen",
+                "type": "unsigned long"
+              },
+              {
+                "name": "pos_l",
+                "type": "unsigned long"
+              },
+              {
+                "name": "pos_h",
+                "type": "unsigned long"
+              },
+              {
+                "name": "flags",
+                "type": "rwf_t"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 328,
     "abi": "64",
     "name": "pwritev2",
-    "implName": "sys_pwritev2",
-    "skipped": "unimplemented"
+    "signatures": [
+      {
+        "key": "unsigned long, const struct iovec __user *, unsigned long, unsigned long, unsigned long, rwf_t",
+        "matches": [
+          {
+            "path": "linux-6.1.16/fs/read_write.c",
+            "text": "SYSCALL_DEFINE6(pwritev2, unsigned long, fd, const struct iovec __user *, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, rwf_t, flags)",
+            "offset": 25414,
+            "params": [
+              {
+                "name": "fd",
+                "type": "unsigned long"
+              },
+              {
+                "name": "vec",
+                "type": "const struct iovec __user *"
+              },
+              {
+                "name": "vlen",
+                "type": "unsigned long"
+              },
+              {
+                "name": "pos_l",
+                "type": "unsigned long"
+              },
+              {
+                "name": "pos_h",
+                "type": "unsigned long"
+              },
+              {
+                "name": "flags",
+                "type": "rwf_t"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": 329,
@@ -9448,7 +10423,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/security/landlock/syscalls.c",
-            "text": "ALL_DEFINE3(landlock_create_ruleset, const struct landlock_ruleset_attr __user *const, attr, const size_t, size, const __u32, flags)",
+            "text": "CALL_DEFINE3(landlock_create_ruleset, const struct landlock_ruleset_attr __user *const, attr, const size_t, size, const __u32, flags)",
             "offset": 4721,
             "params": [
               {
@@ -9479,7 +10454,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/security/landlock/syscalls.c",
-            "text": "ALL_DEFINE4(landlock_add_rule, const int, ruleset_fd, const enum landlock_rule_type, rule_type, const void __user *const, rule_attr, const __u32, flags)",
+            "text": "CALL_DEFINE4(landlock_add_rule, const int, ruleset_fd, const enum landlock_rule_type, rule_type, const void __user *const, rule_attr, const __u32, flags)",
             "offset": 8964,
             "params": [
               {
@@ -9514,7 +10489,7 @@
         "matches": [
           {
             "path": "linux-6.1.16/security/landlock/syscalls.c",
-            "text": "ALL_DEFINE2(landlock_restrict_self, const int, ruleset_fd, const __u32, flags)",
+            "text": "CALL_DEFINE2(landlock_restrict_self, const int, ruleset_fd, const __u32, flags)",
             "offset": 11707,
             "params": [
               {
