@@ -53,19 +53,15 @@ pub struct SyscallSignatureParam {
 // Impls
 
 impl SyscallInfo {
-    pub fn param_types(&self) -> Option<Vec<Vec<String>>> {
+    pub fn params(&self) -> Option<Vec<&[SyscallSignatureParam]>> {
         match self.inner {
             SyscallInfoInner::Skipped(_) => None,
             SyscallInfoInner::Signatures(ref sigs) => Some(
+                // return each of the unique signatures
                 sigs.iter()
                     // TODO: this just grabs the first signature, but we should return both and check which one matches best
-                    .map(|s| {
-                        s.matches[0]
-                            .params
-                            .iter()
-                            .map(|p| p.r#type.clone())
-                            .collect()
-                    })
+                    //       this isn't a different TYPE signature, just different parameter names
+                    .map(|s| &s.matches[0].params[..])
                     .collect(),
             ),
         }

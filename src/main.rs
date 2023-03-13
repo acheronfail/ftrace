@@ -1,7 +1,8 @@
 //! TODO
 
 use std::{
-    collections::HashMap, ffi::c_void, fmt::format, os::unix::process::CommandExt, process::Command,
+    collections::HashMap, ffi::c_void, fs::read_link, os::unix::process::CommandExt, path::PathBuf,
+    process::Command,
 };
 
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -14,9 +15,11 @@ use owo_colors::OwoColorize;
 use syscall::SyscallInfo;
 
 mod syscall;
+mod utf8;
 
+// TODO: put in a limit here and truncate?
 fn read_string(child_pid: Pid, addr: u64) -> String {
-    let mut s = String::new();
+    let mut buf = vec![];
     let mut pos = 0;
     // `ptrace::read` only reads a word at a time from the process' memory
     let word_size = 8;
@@ -37,7 +40,7 @@ fn read_string(child_pid: Pid, addr: u64) -> String {
 
         for b in bytes {
             if b != 0 {
-                s.push(b as char);
+                buf.push(b);
             } else {
                 break 'read_string;
             }
@@ -46,12 +49,8 @@ fn read_string(child_pid: Pid, addr: u64) -> String {
         pos += word_size;
     }
 
-    s
+    utf8::replace_nonprintable(&buf)
 }
-
-// fn print_param(child_pid: Pid, syscall_info: &SyscallInfo, register: u64) -> String {
-//     if ()
-// }
 
 fn print_syscall(
     syscall_table: &HashMap<u64, SyscallInfo>,
@@ -59,13 +58,10 @@ fn print_syscall(
     regs: user_regs_struct,
     width: usize,
 ) {
-    // TODO: read enums: how to know?
-    // eprintln!("{:x}", AT_FDCWD);
-
     let syscall_info = syscall_table.get(&regs.orig_rax).expect("Unknown syscall!");
     let syscall_name = syscall_info.name.bright_green();
     let syscall_result = regs.rax.blue();
-    match syscall_info.param_types() {
+    match syscall_info.params() {
         None => eprintln!(
             "{:>width$}() = {:x}",
             syscall_name,
@@ -79,22 +75,42 @@ fn print_syscall(
             let registers = [regs.rdi, regs.rsi, regs.rdx, regs.rcx, regs.r8, regs.r9];
 
             eprint!("{:>width$}(", syscall_name, width = width);
-            for (i, r#type) in params.iter().enumerate() {
+            for (i, param) in params.iter().enumerate() {
                 if i > 0 {
                     eprint!(", ");
                 }
 
                 let value = registers[i];
-                // TODO: a better way of recognising strings! 😂
-                if r#type.contains("char ") {
-                    // FIXME: why is it a string? is it a string? do I not understand "char" C types?
-                    if syscall_info.name == "getrandom" {
-                        eprint!("SKIPPED");
-                    } else {
-                        eprint!(r#""{}""#, read_string(child_pid, value).yellow());
+                // TODO: read enums: how to know when it's an enum, and what to map it to?
+                // eprintln!("{:x}", AT_FDCWD);
+                match (&param.name[..], &param.r#type[..]) {
+                    // TODO: a better way of recognising strings! 😂
+                    // TODO: handle things like `getrandom` which return bytes, not strings?
+                    (_, t) if t.contains("char ") => {
+                        eprint!(r#""{}""#, read_string(child_pid, value).yellow())
                     }
-                } else {
-                    eprint!("{:x}", value)
+                    // things that look like file descriptors
+                    ("fd", "int") | ("fd", "unsigned int") | ("fd", "unsigned long") => {
+                        match value {
+                            0 => eprint!("{}", "STDIN".red()),
+                            1 => eprint!("{}", "STDOUT".red()),
+                            2 => eprint!("{}", "STDERR".red()),
+                            fd => {
+                                // FIXME: this fails when the syscall is `close` because we're running after it's complete (fd is gone)
+                                // we could (a) monitor all syscalls that create fds, and keep track of them, or (b) leave it as is (fail silently)
+                                let proc_link = PathBuf::from(format!(
+                                    "/proc/{}/fd/{}",
+                                    child_pid.as_raw(),
+                                    fd
+                                ));
+                                match read_link(proc_link) {
+                                    Ok(p) => eprint!("{}", format!("{}:{}", fd, p.display()).red()),
+                                    Err(_) => eprint!("{}", fd.red()),
+                                }
+                            }
+                        }
+                    }
+                    _ => eprint!("{:x}", value),
                 }
             }
 
